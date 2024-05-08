@@ -101,23 +101,26 @@ function print_connection_header {
 
     echo -e "\e[1m$station_from → $station_to\e[0m" 
 
-    if [[ "$os" = Linux ]]; then
-        departure_time=$(date -d @$(echo $1 | jq -r "$2.from.departureTimestamp") +"%H:%M")
-        arrival_time=$(date -d @$(echo $1 | jq -r "$2.to.arrivalTimestamp") +"%H:%M")
-        duration=$(echo $(echo $1 | jq -r "$2.duration") | sed -r 's/^[0-9]+d//gi')
-    elif [[ "$os" = "macOS" ]]; then
-        departure_time=$(date -j -f "%s" $(echo $1 | jq -r "$2.from.departureTimestamp") +"%H:%M")
-        arrival_time=$(date -j -f "%s" $(echo $1 | jq -r "$2.to.arrivalTimestamp") +"%H:%M")
-        duration=$(echo $(echo $1 | jq -r "$2.duration") | sed -E 's/^[0-9]+d//g')
-    else
-        echo "Unkown OS"
-        exit 1
-    fi
-    transfers=$(echo $1 | jq -r "$2.transfers")
-
-    echo -e "Abfahrt: \x1b[37;42m$departure_time\e[0m"
-    echo -e "Ankunft: \x1b[37;44m$arrival_time\e[0m" 
-    echo "Dauer: $duration, Umsteigen: $transfers"
+    if [[ "$os" = Linux ]]; then                                                                                                                                                                                     
+        departure_time=$(date -d @$(echo $1 | jq -r "$2.from.departureTimestamp") +"%H:%M")                                                                                                                          
+        arrival_time=$(date -d @$(echo $1 | jq -r "$2.to.arrivalTimestamp") +"%H:%M")                                                                                                                                
+        duration_hours=$(echo $(echo $1 | jq -r "$2.duration") | awk -F: '{print int($1)}')                                                                                                                              
+        duration_minutes=$(echo $(echo $1 | jq -r "$2.duration") | awk -F: '{print int($2)}')                                                                                                                            
+        duration="${duration_hours}h ${duration_minutes}min"                                                                                                     
+    elif [[ "$os" = "macOS" ]]; then                                                                                                                                                                                 
+        departure_time=$(date -j -f "%s" $(echo $1 | jq -r "$2.from.departureTimestamp") +"%H:%M")                                                                                                                   
+        arrival_time=$(date -j -f "%s" $(echo $1 | jq -r "$2.to.arrivalTimestamp") +"%H:%M")                                                                                                                         
+        duration=$(echo $(echo $1 | jq -r "$2.duration") | sed -E 's/^[0-9]+d//g' | awk -F: '{print $1":"$2}')                                                                                                       
+    else                                                                                                                                                                                                             
+        echo "Unkown OS"                                                                                                                                                                                             
+        exit 1                                                                                                                                                                                                       
+    fi                                                                                                                                                                                                               
+    transfers=$(echo $1 | jq -r "$2.transfers")                                                                                                                                                                      
+                                                                                                                                                                                                                    
+    echo "$SBB_API_BASE?$queryString"                                                                                                                                                                                
+    echo -e "Abfahrt: \x1b[37;42m$departure_time\e[0m"                                                                                                                                                               
+    echo -e "Ankunft: \x1b[37;44m$arrival_time\e[0m"                                                                                                                                                                 
+    echo "Dauer: $duration, Umsteigen: $transfers"     
 }
 
 function print_section {
