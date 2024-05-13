@@ -117,7 +117,6 @@ function print_connection_header {
     fi                                                                                                                                                                                                               
     transfers=$(echo $1 | jq -r "$2.transfers")                                                                                                                                                                      
                                                                                                                                                                                                                     
-    echo "$SBB_API_BASE?$queryString"                                                                                                                                                                                
     echo -e "Abfahrt: \x1b[37;42m$departure_time\e[0m"                                                                                                                                                               
     echo -e "Ankunft: \x1b[37;44m$arrival_time\e[0m"                                                                                                                                                                 
     echo "Dauer: $duration, Umsteigen: $transfers"     
